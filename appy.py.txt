@@ -1,0 +1,37 @@
+import gradio as gr
+import joblib
+import numpy as np
+
+# Trained model load karo
+model = joblib.load("RidgeModel.pkl")
+
+# Prediction function
+def predict_price(location, bhk, bath, sqft):
+    try:
+        input_data = [[location, float(sqft), int(bath), int(bhk)]]
+        prediction = model.predict(input_data)[0]
+        return f"🏠 Estimated Price: ₹ {round(prediction, 2)} Lakhs"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# Interface
+iface = gr.Interface(
+    fn=predict_price,
+    inputs=[
+        gr.Dropdown(
+            ["Whitefield", "Sarjapur Road", "HSR Layout", "Electronic City", "other"],
+            label="Select Location"
+        ),
+        gr.Number(label="Enter BHK"),
+        gr.Number(label="Enter Number of Bathrooms"),
+        gr.Number(label="Enter Total Sqft")
+    ],
+    outputs=gr.Textbox(label="Prediction"),
+    title="🏡 Bangalore House Price Prediction",
+    description="Fill the details and get the predicted house price instantly!"
+)
+
+# Run the app
+if __name__ == "__main__":
+    iface.launch()
+
